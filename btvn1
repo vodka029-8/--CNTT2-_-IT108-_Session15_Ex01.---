@@ -1,0 +1,32 @@
+
+I. Báo cáo phân tích (Luồng dữ liệu & Xử lý xung đột)
+
+
+1. Mô tả luồng dữ liệu Hybrid Workflow
+
+Mô hình làm việc lai (Hybrid) đảm bảo dữ liệu luôn tồn tại song song ở hai nơi:
+• Tại máy cục bộ (Local SSD): Phần mềm 3D ghi file trực tiếp xuống ổ cứng với tốc độ cao ngay khi nhấn Ctrl + S.
+• Lên đám mây (Cloud Storage): Ứng dụng Cloud Desktop (như OneDrive/Google Drive) chạy ngầm lập tức phát hiện thay đổi và tải phần dữ liệu mới lên Cloud theo thời gian thực.
+
+2. Cách hệ thống xử lý khi có xung đột phiên bản (File Version Conflict)
+
+Khi mạng chập chờn hoặc nhiều người cùng sửa một file, hệ thống áp dụng nguyên tắc không ghi đè thô bạo:
+• Tự động nhân bản: Hệ thống giữ nguyên file của người đồng bộ trước. File của người đồng bộ sau sẽ được đổi tên thành Tên_File_[Tên_Máy_Tính]_[Ngày_Tháng].
+• Xử lý thủ công: Người dùng sẽ nhận được cảnh báo xung đột để tự mở hai file lên so sánh và chọn bản tối ưu nhất.
+
+3. Giải pháp cho bẫy dữ liệu (Mất mạng/Sập nguồn đột ngột)
+
+• Khi mất mạng: Mọi thao tác Ctrl + S vẫn lưu bình thường vào ổ SSD nhờ cơ chế Local Cache. Ngay khi có mạng lại, ứng dụng Cloud sẽ tự động quét mã băm (Hash Code) và tiếp tục tải phần dữ liệu còn thiếu lên Cloud (Resume Upload).
+• Khi sập nguồn giữa chừng: Do phần mềm Cloud upload theo từng block dữ liệu nhỏ, file trên Cloud sẽ tạm thời giữ trạng thái của lần Ctrl + S thành công gần nhất trước đó, đảm bảo file không bị hỏng cấu trúc (corrupted).
+
+II. Quy trình thực thi: 3 bước thiết lập chuẩn cho Designer
+
+• Bước 1: Cấu hình thư mục làm việc ở chế độ "Always keep on this device"
+	• Di chuyển toàn bộ thư mục dự án thiết kế vào trong thư mục quản lý của ứng dụng Cloud Desktop.
+	• Nhấp chuột phải vào thư mục dự án, chọn Always keep on this device. Thiết lập này ép buộc hệ thống luôn giữ một bản gốc trên SSD để Designer mở và render tốc độ cao, không bị phụ thuộc vào tốc độ mạng.
+• Bước 2: Bật tính năng đồng bộ thời gian thực và mở băng thông
+	• Vào cài đặt (Settings) của ứng dụng Cloud \(\rightarrow \) Kích hoạt cho phép ứng dụng tự động chạy khi khởi động máy.
+	• Tại mục Băng thông (Bandwidth/Network), chọn Don't limit (Không giới hạn tốc độ tải lên) để đảm bảo file 3D nặng được đẩy lên Cloud ngay lập tức sau mỗi lần nhấn lưu.
+• Bước 3: Định hình quy trình khôi phục qua Version History
+	• Cả nhóm thống nhất quy tắc đặt tên file cố định (ví dụ: 3D_Model_BaoTang.max), tuyệt đối không tự ý đổi tên file thủ công thành các bản _v1, _v2, _final.
+	• Khi xảy ra sự cố hỏng bản vẽ, Designer chỉ cần click chuột phải vào file đó trên thư mục Cloud \(\rightarrow \) Chọn Version History \(\rightarrow \) Chọn mốc thời gian an toàn trước khi bị lỗi và nhấn Restore để khôi phục lại dữ liệu.
